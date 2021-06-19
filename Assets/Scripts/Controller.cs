@@ -19,6 +19,8 @@ public class Controller : MonoBehaviour
     private int state;
     private int clickedTile = -1;
     private int clickedCop = 0;
+    List<int> casillasRobber = new List<int>();
+
 
     void Start()
     {
@@ -236,12 +238,47 @@ public class Controller : MonoBehaviour
 
         //TODO: Implementar BFS. Los nodos seleccionables los ponemos como selectable=true
         //Tendrás que cambiar este código por el BFS
-        for (int i = 0; i < Constants.NumTiles; i++)
+        tiles[indexcurrentTile].visited = true;
+        tiles[indexcurrentTile].distance = 0;
+        tiles[indexcurrentTile].parent = null;
+
+        nodes.Enqueue(tiles[indexcurrentTile]);
+
+        Tile antes;
+
+        while (nodes.Count != 0)
         {
-            tiles[i].selectable = true;
+            antes = nodes.Dequeue();
+            int antes2 = antes.numTile;
+
+            foreach (int adyacente in tiles[antes2].adjacency)
+            {
+                if (tiles[adyacente].visited == false)
+                {
+                    tiles[adyacente].visited = true;
+                    tiles[adyacente].distance = tiles[antes2].distance + 1;
+                    tiles[adyacente].parent = tiles[antes2];
+                    nodes.Enqueue(tiles[adyacente]);
+
+                    if (tiles[adyacente].distance <= 2)
+                    {
+                        if (cop == false)
+                        {
+                            casillasRobber.Add(tiles[adyacente].numTile);
+                        }
+                        tiles[adyacente].selectable = true;
+                        if (cops[0].GetComponent<CopMove>().currentTile == tiles[adyacente].numTile || cops[1].GetComponent<CopMove>().currentTile == tiles[adyacente].numTile)
+                        {
+                            tiles[adyacente].selectable = false;
+                        }
+                    }
+
+                }
+            }
+
         }
-
-
     }
 
+
 }
+
